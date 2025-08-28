@@ -1,0 +1,202 @@
+# Create a realistic synthetic Retail/E‑commerce CSV dataset for a visualization project
+
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+import random
+
+np.random.seed(42)
+random.seed(42)
+
+# Configuration
+n_rows = 600  # number of transactions
+
+start_date = datetime(2024, 1, 1)
+end_date = datetime(2025, 8, 15)
+date_range_days = (end_date - start_date).days
+
+# Domain dictionaries
+categories = {
+    "Electronics": ["Smartphone", "Laptop", "Headphones", "Smartwatch", "Tablet", "Camera"],
+    "Apparel": ["T-Shirt", "Jeans", "Jacket", "Sneakers", "Kurta", "Saree"],
+    "Home & Kitchen": ["Mixer Grinder", "Air Fryer", "Cookware Set", "Vacuum Cleaner", "Bedsheet", "Pillow"],
+    "Beauty": ["Face Cream", "Shampoo", "Perfume", "Lipstick", "Body Lotion", "Sunscreen"],
+    "Sports": ["Football", "Cricket Bat", "Yoga Mat", "Dumbbells", "Tennis Racket", "Cycling Helmet"],
+    "Books": ["Fiction", "Non-Fiction", "Exam Prep", "Comics", "Biography", "Children"],
+    "Grocery": ["Rice", "Atta", "Cooking Oil", "Masala", "Snacks", "Beverage"]
+}
+
+regions = {
+    "North": ["Delhi", "Noida", "Gurugram", "Chandigarh", "Jaipur", "Lucknow"],
+    "South": ["Bengaluru", "Chennai", "Hyderabad", "Kochi", "Coimbatore", "Visakhapatnam"],
+    "East": ["Kolkata", "Bhubaneswar", "Patna", "Ranchi", "Guwahati", "Dhanbad"],
+    "West": ["Mumbai", "Pune", "Ahmedabad", "Surat", "Nagpur", "Vadodara"],
+    "Central": ["Bhopal", "Indore", "Raipur", "Gwalior", "Jabalpur", "Bilaspur"]
+}
+
+payment_methods = ["UPI", "Credit Card", "Debit Card", "Cash on Delivery", "NetBanking", "Wallet"]
+channels = ["Website", "Mobile App", "Marketplace"]
+
+# Category base prices (approximate) and margin ranges
+price_bands = {
+    "Electronics": (6000, 80000),
+    "Apparel": (399, 4999),
+    "Home & Kitchen": (499, 15000),
+    "Beauty": (99, 2999),
+    "Sports": (299, 20000),
+    "Books": (99, 1499),
+    "Grocery": (49, 1999)
+}
+margin_ranges = {
+    "Electronics": (0.07, 0.18),
+    "Apparel": (0.25, 0.45),
+    "Home & Kitchen": (0.15, 0.35),
+    "Beauty": (0.20, 0.40),
+    "Sports": (0.12, 0.30),
+    "Books": (0.10, 0.25),
+    "Grocery": (0.08, 0.20)
+}
+
+# Helper functions
+def random_date():
+    return start_date + timedelta(days=int(np.random.randint(0, date_range_days+1)))
+
+def pick_category():
+    # Weighted popularity (Electronics/Apparel more frequent)
+    cats = list(categories.keys())
+    weights = np.array([0.22, 0.20, 0.16, 0.10, 0.10, 0.12, 0.10])
+    return random.choices(cats, weights=weights, k=1)[0]
+
+def gen_price(category):
+    low, high = price_bands[category]
+    return float(np.round(np.random.uniform(low, high), 2))
+
+def gen_margin(category):
+    low, high = margin_ranges[category]
+    return float(np.round(np.random.uniform(low, high), 4))
+
+def gen_discount(category):
+    # Electronics lower avg discounts, Apparel higher around sales seasons
+    base = {
+        "Electronics": (0.00, 0.20),
+        "Apparel": (0.00, 0.35),
+        "Home & Kitchen": (0.00, 0.25),
+        "Beauty": (0.00, 0.30),
+        "Sports": (0.00, 0.25),
+        "Books": (0.00, 0.20),
+        "Grocery": (0.00, 0.15)
+    }[category]
+    d = np.random.uniform(*base)
+    # Occasionally big festive sales (Oct-Nov)
+    if random.random() < 0.15:
+        d = min(0.50, d + np.random.uniform(0.10, 0.25))
+    return float(np.round(d, 3))
+
+def gen_quantity(category):
+    # Groceries/books more likely multi-qty
+    base = {
+        "Electronics": (1, 2),
+        "Apparel": (1, 3),
+        "Home & Kitchen": (1, 2),
+        "Beauty": (1, 4),
+        "Sports": (1, 2),
+        "Books": (1, 5),
+        "Grocery": (1, 6)
+    }[category]
+    return int(np.random.randint(base[0], base[1]+1))
+
+def calc_cost(unit_price, margin):
+    # cost = price * (1 - margin). We'll compute on pre-discount unit price
+    return float(np.round(unit_price * (1 - margin), 2))
+
+def random_customer_name():
+    first = ["Aarav","Vivaan","Aditya","Vihaan","Ananya","Diya","Isha","Riya","Kabir","Arjun",
+             "Saanvi","Aarya","Ishaan","Kriti","Neha","Priya","Rohit","Sagar","Meera","Reyansh"]
+    last = ["Sharma","Verma","Gupta","Patel","Singh","Iyer","Reddy","Das","Nayak","Yadav",
+            "Mishra","Nair","Banerjee","Ghosh","Khan","Bose","Chawla","Mehta","Kapoor","Jain"]
+    return f"{random.choice(first)} {random.choice(last)}"
+
+def order_channel():
+    # Mobile app slightly more popular
+    return random.choices(channels, weights=[0.35, 0.45, 0.20], k=1)[0]
+
+def payment_method():
+    # UPI very popular in India
+    return random.choices(payment_methods, weights=[0.45, 0.18, 0.12, 0.10, 0.08, 0.07], k=1)[0]
+
+def is_returned(category):
+    # Returns more common in Apparel
+    base = {
+        "Electronics": 0.03,
+        "Apparel": 0.08,
+        "Home & Kitchen": 0.04,
+        "Beauty": 0.02,
+        "Sports": 0.03,
+        "Books": 0.01,
+        "Grocery": 0.005
+    }[category]
+    return 1 if random.random() < base else 0
+
+# Build rows
+rows = []
+for i in range(1, n_rows+1):
+    order_id = f"ORD{202400000 + i:07d}"
+    cust_id = f"CUST{1000 + np.random.randint(0, 5000)}"
+    cust_name = random_customer_name()
+    category = pick_category()
+    subcat = random.choice(categories[category])
+    region = random.choice(list(regions.keys()))
+    city = random.choice(regions[region])
+    dt = random_date()
+
+    qty = gen_quantity(category)
+    unit_price = gen_price(category)
+    margin = gen_margin(category)
+    unit_cost = calc_cost(unit_price, margin)
+    discount = gen_discount(category)  # fraction
+    pm = payment_method()
+    ch = order_channel()
+    returned = is_returned(category)
+
+    # Financials
+    gross = unit_price * qty
+    revenue = gross * (1 - discount)
+    cost = unit_cost * qty  # cost not affected by discount
+    profit = revenue - cost
+
+    rows.append({
+        "OrderID": order_id,
+        "OrderDate": dt.strftime("%Y-%m-%d"),
+        "CustomerID": cust_id,
+        "CustomerName": cust_name,
+        "Region": region,
+        "City": city,
+        "Channel": ch,
+        "PaymentMethod": pm,
+        "ProductCategory": category,
+        "ProductSubcategory": subcat,
+        "ProductID": f"SKU-{hash(subcat) % 100000:05d}",
+        "UnitPrice": round(unit_price, 2),
+        "Quantity": qty,
+        "DiscountRate": round(discount, 3),
+        "GrossAmount": round(gross, 2),
+        "Revenue": round(revenue, 2),
+        "UnitCost": round(unit_cost, 2),
+        "TotalCost": round(cost, 2),
+        "Profit": round(profit, 2),
+        "IsReturned": returned
+    })
+
+df = pd.DataFrame(rows)
+
+# Sort by date then by OrderID
+df = df.sort_values(["OrderDate", "OrderID"]).reset_index(drop=True)
+
+# Save CSV
+csv_path = "/mnt/data/ecommerce_sales.csv"
+df.to_csv(csv_path, index=False)
+
+import caas_jupyter_tools
+caas_jupyter_tools.display_dataframe_to_user("E-commerce Sales Dataset (Synthetic)", df.head(50))
+
+csv_path
