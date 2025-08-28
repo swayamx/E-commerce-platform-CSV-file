@@ -1,0 +1,47 @@
+import pandas as pd
+import numpy as np
+import random
+
+# ------------------------------
+# 1. Sample data generation
+# ------------------------------
+products = ["Laptop", "Smartphone", "Headphones", "Tablet", "Smartwatch", "Camera"]
+categories = ["Electronics", "Accessories", "Wearables"]
+customers = ["C001", "C002", "C003", "C004", "C005", "C006"]
+
+# Generate random dataset
+data = []
+for i in range(1, 51):  # 50 rows of data
+    order_id = f"O{i:03d}"
+    customer = random.choice(customers)
+    product = random.choice(products)
+    category = (
+        "Electronics" if product in ["Laptop", "Smartphone", "Tablet", "Camera"]
+        else "Accessories" if product == "Headphones"
+        else "Wearables"
+    )
+    price = round(random.uniform(50, 1000), 2)
+    quantity = random.randint(1, 5)
+    revenue = round(price * quantity, 2)
+    
+    data.append([order_id, customer, product, category, price, quantity, revenue])
+
+# Create DataFrame
+df = pd.DataFrame(data, columns=["OrderID", "CustomerID", "Product", "Category", "Price", "Quantity", "Revenue"])
+
+# ------------------------------
+# 2. Save dataset to CSV
+# ------------------------------
+csv_path = "ecommerce_sales.csv"   # Saves in current folder
+df.to_csv(csv_path, index=False)
+
+print(f"✅ CSV file saved as {csv_path}")
+print("\nPreview of dataset:\n")
+print(df.head())
+
+# ------------------------------
+# 3. Simple Analysis
+# ------------------------------
+print("\nTotal Revenue:", df["Revenue"].sum())
+print("\nTop 3 Selling Products:")
+print(df.groupby("Product")["Revenue"].sum().sort_values(ascending=False).head(3))
