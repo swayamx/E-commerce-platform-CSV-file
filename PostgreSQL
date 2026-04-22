@@ -1,0 +1,4 @@
+COPY ecommerce_sales
+FROM '/path/to/ecommerce_sales.csv'
+DELIMITER ','
+CSV HEADER;
