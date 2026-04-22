@@ -1,0 +1,22 @@
+CREATE TABLE ecommerce_sales (
+    OrderID VARCHAR(20),
+    OrderDate DATE,
+    CustomerID VARCHAR(20),
+    CustomerName VARCHAR(100),
+    Region VARCHAR(50),
+    City VARCHAR(50),
+    Channel VARCHAR(50),
+    PaymentMethod VARCHAR(50),
+    ProductCategory VARCHAR(50),
+    ProductSubcategory VARCHAR(50),
+    ProductID VARCHAR(20),
+    UnitPrice DECIMAL(10,2),
+    Quantity INT,
+    DiscountRate DECIMAL(5,3),
+    GrossAmount DECIMAL(12,2),
+    Revenue DECIMAL(12,2),
+    UnitCost DECIMAL(10,2),
+    TotalCost DECIMAL(12,2),
+    Profit DECIMAL(12,2),
+    IsReturned INT
+);
