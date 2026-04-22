@@ -1,0 +1,6 @@
+LOAD DATA INFILE '/path/to/ecommerce_sales.csv'
+INTO TABLE ecommerce_sales
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
