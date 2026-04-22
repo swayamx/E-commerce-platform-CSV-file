@@ -1,0 +1,66 @@
+📊 Total Revenue & Profit
+SELECT 
+    SUM(Revenue) AS Total_Revenue,
+    SUM(Profit) AS Total_Profit
+FROM ecommerce_sales;
+📈 Monthly Sales Trend
+SELECT 
+    DATE_FORMAT(OrderDate, '%Y-%m') AS Month,
+    SUM(Revenue) AS Monthly_Revenue
+FROM ecommerce_sales
+GROUP BY Month
+ORDER BY Month;
+
+(PostgreSQL version 👇)
+
+SELECT 
+    TO_CHAR(OrderDate, 'YYYY-MM') AS Month,
+    SUM(Revenue) AS Monthly_Revenue
+FROM ecommerce_sales
+GROUP BY Month
+ORDER BY Month;
+🛍️ Top Selling Categories
+SELECT 
+    ProductCategory,
+    SUM(Revenue) AS Total_Revenue
+FROM ecommerce_sales
+GROUP BY ProductCategory
+ORDER BY Total_Revenue DESC;
+💰 Profit by Category
+SELECT 
+    ProductCategory,
+    SUM(Profit) AS Total_Profit
+FROM ecommerce_sales
+GROUP BY ProductCategory
+ORDER BY Total_Profit DESC;
+🌍 Region-wise Sales
+SELECT 
+    Region,
+    SUM(Revenue) AS Revenue
+FROM ecommerce_sales
+GROUP BY Region
+ORDER BY Revenue DESC;
+💳 Payment Method Analysis
+SELECT 
+    PaymentMethod,
+    COUNT(*) AS Total_Orders,
+    SUM(Revenue) AS Revenue
+FROM ecommerce_sales
+GROUP BY PaymentMethod
+ORDER BY Revenue DESC;
+🔄 Return Rate
+SELECT 
+    (SUM(IsReturned) * 100.0 / COUNT(*)) AS Return_Percentage
+FROM ecommerce_sales;
+🧠 Top Customers (High Value)
+SELECT 
+    CustomerName,
+    SUM(Revenue) AS Total_Spent
+FROM ecommerce_sales
+GROUP BY CustomerName
+ORDER BY Total_Spent DESC
+LIMIT 10;
+4️⃣ A Small Old-School Tip (Still Gold)
+
+Keep your schema simple first (like this), then normalize later if needed.
+A lot of modern devs overcomplicate early—this approach works reliably and scales when needed.
